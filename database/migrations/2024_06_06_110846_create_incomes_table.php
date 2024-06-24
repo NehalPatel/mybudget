@@ -17,8 +17,10 @@ return new class extends Migration
             $table->date('transaction_date');
             $table->string('invoice_no')->nullable();
             $table->foreignId('account_id')->constrained();
+            $table->foreignId('category_id')->constrained();
+            $table->string('tags')->nullable();
             $table->decimal('amount', 8, 2);
-            $table->string('photos')->nullable();
+            $table->string('attachments')->nullable();
             $table->timestamps();
         });
     }

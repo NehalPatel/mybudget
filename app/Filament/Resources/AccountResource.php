@@ -12,6 +12,8 @@ use Filament\Forms\Form;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -32,14 +34,17 @@ class AccountResource extends Resource
                     ->required()
                     ->unique(ignoreRecord:true)
                     ->maxLength(255)
-                    ->autofocus(),
+                    ->autofocus()->lazy()
+                    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
+
+                TextInput::make('slug')
+                    ->columnSpan(2)
+                    ->required()
+                    ->maxLength(255),
 
                 Forms\Components\Textarea::make('details')
                     ->columnSpan(2)
                     ->maxLength(255),
-
-                TextInput::make('balance')
-                    ->numeric(),
 
                 Toggle::make('is_active')
                     ->default(true),
@@ -50,13 +55,26 @@ class AccountResource extends Resource
     {
         return $table
             ->columns([
-                //
+                TextColumn::make('name')
+                    ->limit(50)
+                    ->sortable()
+                    ->searchable()
+                    ->tooltip(function ($record) {
+                        return $record->name;
+                    }),
+
+                ToggleColumn::make('is_active'),
+
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->toggleable(isToggledHiddenByDefault: true)
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

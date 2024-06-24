@@ -15,9 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('description');
             $table->date('transaction_date');
-            $table->foreignId('account_id')->constrained();
+
+            $table->unsignedBigInteger('from_account_id');
+            $table->foreign('from_account_id')->references('id')->on('accounts')->onDelete('cascade');
+
+            $table->unsignedBigInteger('to_account_id');
+            $table->foreign('to_account_id')->references('id')->on('accounts')->onDelete('cascade');
+
             $table->decimal('amount', 8, 2);
-            $table->string('photos')->nullable();
+            $table->string('attachments')->nullable();
             $table->timestamps();
         });
     }

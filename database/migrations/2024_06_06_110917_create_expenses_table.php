@@ -16,8 +16,10 @@ return new class extends Migration
             $table->string('description');
             $table->date('transaction_date');
             $table->foreignId('account_id')->constrained();
+            $table->foreignId('category_id')->constrained();
+            $table->string('tags')->nullable();
             $table->decimal('amount', 8, 2);
-            $table->string('photos')->nullable();
+            $table->string('attachments')->nullable();
             $table->timestamps();
         });
     }
