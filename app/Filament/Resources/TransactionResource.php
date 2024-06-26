@@ -11,8 +11,10 @@ use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -28,39 +30,45 @@ class TransactionResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make('Transaction')
-                    ->columns(3)
+                    ->columns(2)
                     ->schema([
-                        Select::make('transaction_type')
-                            ->live()
-                            ->options(config('myconfig.transaction_types')),
-
                         DatePicker::make('transaction_date')
                             ->label('Transaction Date')
                             ->native(false),
+
+                        Select::make('transaction_type')
+                            ->live()
+                            ->options(config('myconfig.transaction_types')),
 
                         Select::make('category_id')
                             ->required()
                             ->label('Category')
                             ->native(false)
-                            ->options(
-                                Category::pluck('name', 'id')
-                                    ->where('type', 'income')
-                                    ->all()
-                            ),
+                            ->options(function(Get $get){
+                                $transactionType = $get('transaction_type');
+
+                                return Category::where('type', $transactionType)
+                                    ->pluck('name', 'id')
+                                    ->all();
+                            }),
 
                         Select::make('account_id')
                             ->required()
-                            ->label('To Account')
+                            ->label('Account')
                             ->native(false)
                             ->options(Account::pluck('name', 'id')->all()),
 
+                        Forms\Components\TextInput::make('amount')
+                            ->numeric()
+                            ->required()
+                            ->minValue(0)
+                            ->prefix('₹'),
+
                         Forms\Components\Textarea::make('description')
-                            ->label('Description')
-                            ->columnSpan(3),
+                            ->label('Description'),
 
                         Select::make('tags')
                             ->preload()
-                            ->columnSpan(3)
                             ->relationship('tags', 'name')
                             ->multiple(),
                     ])
@@ -71,13 +79,41 @@ class TransactionResource extends Resource
     {
         return $table
             ->columns([
-                //
+                TextColumn::make('transaction_type')
+                    ->label('Type')
+                    ->sortable()
+                    ->searchable(),
+
+                TextColumn::make('category.name')
+                    ->sortable()
+                    ->searchable(),
+
+                TextColumn::make('account.name')
+                    ->sortable()
+                    ->searchable(),
+
+                TextColumn::make('description')
+                    ->sortable()
+                    ->limit(25)
+                    ->searchable()
+                    ->tooltip(function ($record) {
+                        return $record->description;
+                    }),
+
+                TextColumn::make('amount')
+                    ->sortable()
+                    ->searchable(),
+
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
