@@ -6,6 +6,7 @@ use App\Filament\Resources\CategoryResource\Pages;
 use App\Filament\Resources\CategoryResource\RelationManagers;
 use App\Models\Category;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
@@ -14,6 +15,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -45,6 +48,10 @@ class CategoryResource extends Resource
                     ->required()
                     ->maxLength(255),
 
+                Select::make('type')
+                    ->required()
+                    ->options(config('myconfig.transaction_types')),
+
                 Toggle::make('is_active')
                     ->default(true),
             ]);
@@ -62,11 +69,18 @@ class CategoryResource extends Resource
                         return $record->name;
                     }),
 
+                TextColumn::make('type')
+                    ->badge()
+                    ->sortable()
+                    ->searchable(),
+
                 ToggleColumn::make('is_active'),
             ])
             ->filters([
-                //
+                SelectFilter::make('type')
+                    ->options(config('myconfig.transaction_types'))
             ])
+            ->defaultSort('name')
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

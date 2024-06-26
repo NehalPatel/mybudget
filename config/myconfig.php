@@ -5,9 +5,9 @@ return [
     'transaction_types' => [
         'income'   => 'Income',
         'expense'  => 'Expense',
-        'balance'  => 'Balance',
-        'transfer' => 'Transfer',
-        'withdraw' => 'Withdraw',
-        'deposit'  => 'Deposit',
+        // 'balance'  => 'Balance',
+        // 'transfer' => 'Transfer',
+        // 'withdraw' => 'Withdraw',
+        // 'deposit'  => 'Deposit',
     ]
 ];
