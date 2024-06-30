@@ -42,9 +42,10 @@ class TransactionResource extends Resource
 
                         Select::make('category_id')
                             ->required()
+                            ->searchable()
                             ->label('Category')
                             ->native(false)
-                            ->options(function(Get $get){
+                            ->options(function (Get $get) {
                                 $transactionType = $get('transaction_type');
 
                                 return Category::where('type', $transactionType)
@@ -53,6 +54,7 @@ class TransactionResource extends Resource
                             }),
 
                         Select::make('account_id')
+                            ->searchable()
                             ->required()
                             ->label('Account')
                             ->native(false)
@@ -68,6 +70,7 @@ class TransactionResource extends Resource
                             ->label('Description'),
 
                         Select::make('tags')
+                            ->searchable()
                             ->preload()
                             ->relationship('tags', 'name')
                             ->multiple(),
@@ -108,6 +111,11 @@ class TransactionResource extends Resource
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->recordClasses(fn(Transaction $record) => match ($record->transaction_type) {
+                'expense' => 'border-s-2 border-orange-600 dark:border-orange-300',
+                'income' => 'border-s-2 border-green-600 dark:border-green-300',
+                default => null,
+            })
             ->filters([
                 //
             ])
@@ -132,9 +140,9 @@ class TransactionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTransactions::route('/'),
+            'index'  => Pages\ListTransactions::route('/'),
             'create' => Pages\CreateTransaction::route('/create'),
-            'edit' => Pages\EditTransaction::route('/{record}/edit'),
+            'edit'   => Pages\EditTransaction::route('/{record}/edit'),
         ];
     }
 }
