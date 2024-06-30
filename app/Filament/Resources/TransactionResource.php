@@ -14,6 +14,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\Alignment;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -124,6 +125,7 @@ class TransactionResource extends Resource
 
                 TextColumn::make('amount')
                     ->sortable()
+                    ->alignment(Alignment::End)
                     ->searchable(),
 
                 TextColumn::make('created_at')
