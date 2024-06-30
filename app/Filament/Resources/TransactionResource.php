@@ -82,7 +82,10 @@ class TransactionResource extends Resource
                             ->columnSpan(2)
                             ->label('Description'),
 
-
+                        Forms\Components\FileUpload::make('attachment')
+                            ->label('Attachment')
+                            ->columnSpan(2)
+                            ->multiple(),
                     ])
             ]);
     }
