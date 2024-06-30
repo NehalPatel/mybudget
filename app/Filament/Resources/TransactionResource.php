@@ -95,7 +95,7 @@ class TransactionResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('transaction_date')
-                    ->dateTime('F j, Y g:i A'),
+                    ->date('F j, Y'),
 
                 TextColumn::make('transaction_type')
                     ->label('Type')
@@ -168,6 +168,7 @@ class TransactionResource extends Resource
                         return $query;
                     }),
             ])
+            ->defaultSort('transaction_date', 'desc')
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

@@ -59,11 +59,27 @@ class JournalResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('description')->sortable()->searchable(),
-                TextColumn::make('transaction_date')->dateTime('F j, Y')->sortable(),
-                TextColumn::make('fromAccount.name')->label('From Account')->sortable()->searchable(),
-                TextColumn::make('toAccount.name')->label('To Account')->sortable()->searchable(),
-                TextColumn::make('amount')->sortable()->prefix('₹'),
+                TextColumn::make('description')
+                    ->sortable()
+                    ->searchable(),
+
+                TextColumn::make('transaction_date')
+                    ->dateTime('F j, Y')
+                    ->sortable(),
+
+                TextColumn::make('fromAccount.name')
+                    ->label('From Account')
+                    ->sortable()
+                    ->searchable(),
+
+                TextColumn::make('toAccount.name')
+                    ->label('To Account')
+                    ->sortable()
+                    ->searchable(),
+
+                TextColumn::make('amount')
+                    ->sortable()
+                    ->prefix('₹'),
             ])
             ->filters([
                 Filter::make('transaction_date')
