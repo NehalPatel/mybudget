@@ -6,6 +6,7 @@ use App\Filament\Resources\TransactionResource\Pages;
 use App\Filament\Resources\TransactionResource\RelationManagers;
 use App\Models\Account;
 use App\Models\Category;
+use App\Models\Tag;
 use App\Models\Transaction;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
@@ -15,6 +16,7 @@ use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -49,6 +51,7 @@ class TransactionResource extends Resource
                                 $transactionType = $get('transaction_type');
 
                                 return Category::where('type', $transactionType)
+                                    ->orderBy('name')
                                     ->pluck('name', 'id')
                                     ->all();
                             }),
@@ -66,14 +69,20 @@ class TransactionResource extends Resource
                             ->minValue(0)
                             ->prefix('₹'),
 
-                        Forms\Components\Textarea::make('description')
-                            ->label('Description'),
-
                         Select::make('tags')
                             ->searchable()
                             ->preload()
                             ->relationship('tags', 'name')
+                            ->options(function () {
+                                return Tag::orderBy('name', 'asc')->pluck('name', 'id');
+                            })
                             ->multiple(),
+
+                        Forms\Components\Textarea::make('description')
+                            ->columnSpan(2)
+                            ->label('Description'),
+
+
                     ])
             ]);
     }
@@ -82,23 +91,30 @@ class TransactionResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('transaction_date')
+                    ->dateTime('F j, Y g:i A'),
+
                 TextColumn::make('transaction_type')
                     ->label('Type')
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->sortable()
                     ->searchable(),
 
                 TextColumn::make('category.name')
                     ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->searchable(),
 
                 TextColumn::make('account.name')
                     ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->searchable(),
 
                 TextColumn::make('description')
                     ->sortable()
                     ->limit(25)
                     ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->tooltip(function ($record) {
                         return $record->description;
                     }),
@@ -117,7 +133,37 @@ class TransactionResource extends Resource
                 default => null,
             })
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('transaction_type')
+                    ->options(config('myconfig.transaction_types')),
+
+                Tables\Filters\SelectFilter::make('category_id')
+                    ->label('Category')
+                    ->relationship('category', 'name'),
+
+                Tables\Filters\SelectFilter::make('account_id')
+                    ->label('Account')
+                    ->relationship('account', 'name'),
+
+                Filter::make('transaction_date')
+                    ->form([
+                        DatePicker::make('from')
+                            ->label('From Date')
+                            ->placeholder('Select start date'),
+                        DatePicker::make('to')
+                            ->label('To Date')
+                            ->placeholder('Select end date'),
+                    ])
+                    ->query(function ($query, array $data) {
+                        if (isset($data['from'])) {
+                            $query->whereDate('transaction_date', '>=', $data['from']);
+                        }
+
+                        if (isset($data['to'])) {
+                            $query->whereDate('transaction_date', '<=', $data['to']);
+                        }
+
+                        return $query;
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

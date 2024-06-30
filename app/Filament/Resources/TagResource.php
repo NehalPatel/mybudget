@@ -47,7 +47,8 @@ class TagResource extends Resource
                     ->required()
                     ->maxLength(255),
 
-                Toggle::make('status')
+                Toggle::make('is_active')
+                    ->label('Status')
                     ->default(true),
             ]);
     }
@@ -65,13 +66,15 @@ class TagResource extends Resource
                         return $record->name;
                     }),
 
-                ToggleColumn::make('status'),
+                ToggleColumn::make('is_active')
+                    ->label('Status'),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
