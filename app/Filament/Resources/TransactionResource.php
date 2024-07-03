@@ -26,7 +26,7 @@ class TransactionResource extends Resource
 {
     protected static ?string $model = Transaction::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-banknotes';
 
     public static function form(Form $form): Form
     {
@@ -96,6 +96,7 @@ class TransactionResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('transaction_date')
+                    ->sortable()
                     ->date('F j, Y'),
 
                 TextColumn::make('transaction_type')
