@@ -11,6 +11,11 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class StatsOverview extends BaseWidget
 {
+    protected function getColumns(): int
+    {
+        return 4;
+    }
+
     protected function getStats(): array
     {
         $total_expenses = Transaction::where('transaction_type', 'expense')->sum('amount');
@@ -35,32 +40,33 @@ class StatsOverview extends BaseWidget
             ->whereBetween('transaction_date', [$startOfPreviousMonth, $endOfPreviousMonth])->sum('amount');
 
         return [
-            Stat::make('Total Expenses', $total_expenses)
+            Stat::make('Current Month Expenses', number_format($current_month_expenses, 2))
+                ->description(Carbon::now()->monthName)
+                ->descriptionIcon('heroicon-s-arrow-trending-up')
+                ->color('warning'),
+
+            Stat::make('Current Month Income', number_format($current_month_income,2))
+                ->description(Carbon::now()->monthName)
+                ->descriptionIcon('heroicon-s-arrow-trending-down')
+                ->color('success'),
+
+            Stat::make('Previous Month Expenses', number_format($previous_month_expenses, 2))
+                ->description(Carbon::now()->subMonth()->monthName)
+                ->descriptionIcon('heroicon-s-arrow-trending-up')
+                ->color('warning'),
+
+            Stat::make('Previous Month Income', number_format($previous_month_income,2))
+                ->description(Carbon::now()->subMonth()->monthName)
+                ->descriptionIcon('heroicon-s-arrow-trending-down')
+                ->color('success'),
+
+            Stat::make('Total Expenses', number_format($total_expenses,2 ))
                 ->description('Total Expense')
                 ->descriptionIcon('heroicon-s-arrow-trending-up')
                 ->color('warning'),
-            Stat::make('Total Income', $total_income)
+
+            Stat::make('Total Income', number_format($total_income,2 ))
                 ->description('Total Income')
-                ->descriptionIcon('heroicon-s-arrow-trending-down')
-                ->color('success'),
-
-            Stat::make('Current Month Expenses', $current_month_expenses)
-                ->description(Carbon::now()->monthName)
-                ->descriptionIcon('heroicon-s-arrow-trending-up')
-                ->color('warning'),
-
-            Stat::make('Current Month Income', $current_month_income)
-                ->description(Carbon::now()->monthName)
-                ->descriptionIcon('heroicon-s-arrow-trending-down')
-                ->color('success'),
-
-            Stat::make('Previous Month Expenses', $previous_month_expenses)
-                ->description(Carbon::now()->subMonth()->monthName)
-                ->descriptionIcon('heroicon-s-arrow-trending-up')
-                ->color('warning'),
-
-            Stat::make('Previous Month Income', $previous_month_income)
-                ->description(Carbon::now()->subMonth()->monthName)
                 ->descriptionIcon('heroicon-s-arrow-trending-down')
                 ->color('success'),
         ];
