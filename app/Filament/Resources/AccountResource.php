@@ -30,7 +30,6 @@ class AccountResource extends Resource
         return $form
             ->schema([
                 TextInput::make('name')
-                    ->columnSpan(2)
                     ->required()
                     ->unique(ignoreRecord:true)
                     ->maxLength(255)
@@ -38,7 +37,6 @@ class AccountResource extends Resource
                     ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
 
                 TextInput::make('slug')
-                    ->columnSpan(2)
                     ->required()
                     ->maxLength(255),
 
@@ -86,7 +84,7 @@ class AccountResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\TransactionsRelationManager::class
         ];
     }
 
